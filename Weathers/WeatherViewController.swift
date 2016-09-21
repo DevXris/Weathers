@@ -24,12 +24,18 @@ class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewD
             tableView.rowHeight = 80
         }
     }
+    
+    var currentWeather = CurrentWeather()
 
     // MARK: ViewController Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        var weather = OpenWeather(latitude: 30, longitude: 30, urlType: .Today)
+        print(weather.url)
+        weather.urlType = .Forecast
+        print(weather.url)
     }
 
     // MARK: UITableViewDataSource
