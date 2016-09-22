@@ -83,7 +83,7 @@ struct OpenWeather {
 
     // MARK: Initialization
     
-    init(latitude: Double?, longitude: Double?, urlType: URLType) {
+    init(latitude: Double, longitude: Double, urlType: URLType) {
         _latitude = latitude
         _longitude = longitude
         _urlType = urlType

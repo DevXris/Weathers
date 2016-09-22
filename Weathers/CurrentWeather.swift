@@ -9,7 +9,7 @@
 import Foundation
 import Alamofire
 
-typealias Completed = () -> () // used for callback
+typealias Completed = (_ weather: CurrentWeather) -> () // used for callback
 
 struct CurrentWeather {
     
@@ -28,15 +28,39 @@ struct CurrentWeather {
         return "Today, \(currentDate)"
     }
     
-//    mutating func downloadWeatherDetails(completed: @escaping Completed) {
-//        let currentWeatherURL = OpenWeather.instance.url!
-//        Alamofire.request(currentWeatherURL).responseJSON { (response) in
-//            if response.result.isSuccess {
-//                print(response.result)
-//            } else {
-//                print(response.debugDescription)
-//            }
-//            completed()
-//        }
-//    }
+    mutating func downloadWeatherDetails(completed: @escaping Completed) {
+        let currentWeatherURL = OpenWeather.instance.url
+        
+        // create a copy of self(it's a struct) and send data to callback
+        var weatherCopy = self
+        Alamofire.request(currentWeatherURL).responseJSON { (response) in
+            if response.result.isSuccess {
+                
+                // Parse data from OpenWeatherMap
+                let result = response.result.value
+                if let dict = result as? [String: AnyObject],
+                   let name = dict["name"] as? String,
+                   let weather = dict["weather"] as? [[String: AnyObject]],
+                   let main = dict["main"] as? [String: AnyObject] {
+                    
+                    weatherCopy._cityName = name
+                    
+                    if let type = weather[0]["main"] as? String {
+                        weatherCopy._weatherType = type
+                    }
+                    
+                    if let temp = main["temp"] as? Double {
+                        let kelvinToCelsius = temp - 273.15
+                        // let kelvinToFahrenheitPredivision = temp * 9/5 - 459.67
+                        // let kelvinToFahrenheit = Double(round(10 * kelvinToFahrenheitPredivision) / 10)
+                        weatherCopy._currentTemp = Double(round(10 * kelvinToCelsius) / 10)
+                    }
+                }
+                
+            } else {
+                print(response.debugDescription)
+            }
+            completed(weatherCopy)
+        }
+    }
 }

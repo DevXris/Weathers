@@ -31,11 +31,21 @@ class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        var weather = OpenWeather(latitude: 30, longitude: 30, urlType: .Today)
-        print(weather.url)
-        weather.urlType = .Forecast
-        print(weather.url)
+
+        currentWeather.downloadWeatherDetails { (weather) in
+            print("Got data callback!")
+            self.currentWeather = weather // set self to callback data
+            self.updateUI()
+        }
+    }
+    
+    // MARK: Functions
+    func updateUI() {
+        dateLabel.text = currentWeather.date
+        currentTempLabel.text = String(currentWeather.currentTemp)
+        locationLabel.text = currentWeather.cityName
+        currentWeatherImage.image = UIImage(named: currentWeather.weatherType)
+        currentWeatherTypeLabel.text = currentWeather.weatherType
     }
 
     // MARK: UITableViewDataSource
