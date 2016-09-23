@@ -64,8 +64,8 @@ class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewD
                     for list in lists {
                         let forecast = Forecast(weatherDict: list)
                         self.forecasts.append(forecast)
-//                        print(list)
                     }
+                    self.forecasts.remove(at: 0) // simply remove today's forecast
                 }
             } else {
                 print(response.debugDescription)
@@ -89,16 +89,14 @@ class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 6
+        return forecasts.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if !forecasts.isEmpty {
-            if let cell = tableView.dequeueReusableCell(withIdentifier: "WeatherCell", for: indexPath) as? WeatherCell {
-                let forecast = forecasts[indexPath.row]
-                cell.configureCell(forecast: forecast)
-                return cell
-            }
+        if let cell = tableView.dequeueReusableCell(withIdentifier: "WeatherCell", for: indexPath) as? WeatherCell {
+            let forecast = forecasts[indexPath.row]
+            cell.configureCell(forecast: forecast)
+            return cell
         }
         return UITableViewCell()
     }

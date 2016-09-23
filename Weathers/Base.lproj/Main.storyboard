@@ -43,7 +43,7 @@
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="Kbc-7H-egL">
                                         <subviews>
-                                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Clear" translatesAutoresizingMaskIntoConstraints="NO" id="2kx-s3-fHx">
+                                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Clear" translatesAutoresizingMaskIntoConstraints="NO" id="2kx-s3-fHx">
                                                 <constraints>
                                                     <constraint firstAttribute="width" secondItem="2kx-s3-fHx" secondAttribute="height" multiplier="1:1" id="4r2-a0-oPB"/>
                                                 </constraints>
@@ -77,7 +77,7 @@
                                             <frame key="frameInset" width="375" height="79"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hnc-cJ-RtG">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hnc-cJ-RtG">
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="60" id="DGN-Eh-Qod"/>
                                                         <constraint firstAttribute="width" constant="60" id="xAU-Kk-QhT"/>
