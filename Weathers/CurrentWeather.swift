@@ -9,8 +9,6 @@
 import Foundation
 import Alamofire
 
-typealias Completed = (_ weather: CurrentWeather) -> () // used for callback
-
 struct CurrentWeather {
     
     private var _cityName: String!
@@ -31,12 +29,12 @@ struct CurrentWeather {
     mutating func downloadWeatherDetails(completed: @escaping Completed) {
         let currentWeatherURL = OpenWeather.instance.url
         
-        // create a copy of self(it's a struct) and send data to callback
-        var weatherCopy = self
+        var weatherCopy = self // create a copy of self(it's a struct) and send data to callback
+
         Alamofire.request(currentWeatherURL).responseJSON { (response) in
             if response.result.isSuccess {
                 
-                // Parse data from OpenWeatherMap
+                // Parse data from OpenWeatherMap current data
                 let result = response.result.value
                 if let dict = result as? [String: AnyObject],
                    let name = dict["name"] as? String,

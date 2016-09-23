@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Alamofire
 
 class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
@@ -26,20 +27,53 @@ class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     var currentWeather = CurrentWeather()
+    var forecast: Forecast!
+    var forecasts = [Forecast]()
 
     // MARK: ViewController Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         currentWeather.downloadWeatherDetails { (weather) in
-            print("Got data callback!")
-            self.currentWeather = weather // set self to callback data
-            self.updateUI()
+            if let weather = weather as? CurrentWeather {
+                print("Got current weather data callback!")
+                self.currentWeather = weather // set self to callback data
+                self.downloadForecastData(completed: { _ in
+                    self.updateUI()
+                })
+            } else {
+                print("Can't get current weather data!")
+            }
         }
     }
     
     // MARK: Functions
+    
+    func downloadForecastData(completed: @escaping Completed) {
+        var forecastURL = OpenWeather.instance
+        forecastURL.urlType = .Forecast
+        
+        Alamofire.request(forecastURL.url).responseJSON { (response) in
+            if response.result.isSuccess {
+                
+                // Parse data from OpenWeatherMap forecast data
+                let result = response.result.value
+                if let dict = result as? [String: AnyObject],
+                   let lists = dict["list"] as? [[String: AnyObject]] {
+                    for list in lists {
+                        let forecast = Forecast(weatherDict: list)
+                        self.forecasts.append(forecast)
+//                        print(list)
+                    }
+                }
+            } else {
+                print(response.debugDescription)
+            }
+            completed(CurrentWeather())
+        }
+    }
+    
     func updateUI() {
         dateLabel.text = currentWeather.date
         currentTempLabel.text = String(currentWeather.currentTemp)
