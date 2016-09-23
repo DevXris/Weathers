@@ -27,7 +27,6 @@ class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     var currentWeather = CurrentWeather()
-    var forecast: Forecast!
     var forecasts = [Forecast]()
 
     // MARK: ViewController Life Cycle
@@ -41,6 +40,7 @@ class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewD
                 self.currentWeather = weather // set self to callback data
                 self.downloadForecastData(completed: { _ in
                     self.updateUI()
+                    self.tableView.reloadData()
                 })
             } else {
                 print("Can't get current weather data!")
@@ -70,13 +70,13 @@ class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewD
             } else {
                 print(response.debugDescription)
             }
-            completed(CurrentWeather())
+            completed(nil)
         }
     }
     
     func updateUI() {
         dateLabel.text = currentWeather.date
-        currentTempLabel.text = String(currentWeather.currentTemp)
+        currentTempLabel.text = String(format: "%.1f°", currentWeather.currentTemp)
         locationLabel.text = currentWeather.cityName
         currentWeatherImage.image = UIImage(named: currentWeather.weatherType)
         currentWeatherTypeLabel.text = currentWeather.weatherType
@@ -93,8 +93,14 @@ class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "WeatherCell", for: indexPath)
-        return cell
+        if !forecasts.isEmpty {
+            if let cell = tableView.dequeueReusableCell(withIdentifier: "WeatherCell", for: indexPath) as? WeatherCell {
+                let forecast = forecasts[indexPath.row]
+                cell.configureCell(forecast: forecast)
+                return cell
+            }
+        }
+        return UITableViewCell()
     }
     
     // MARK: UITableViewDelegate
