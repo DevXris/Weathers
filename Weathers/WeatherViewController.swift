@@ -8,8 +8,9 @@
 
 import UIKit
 import Alamofire
+import CoreLocation
 
-class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, CLLocationManagerDelegate {
     
     // MARK: Outlets and Properteis
     
@@ -28,33 +29,47 @@ class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     var currentWeather = CurrentWeather()
     var forecasts = [Forecast]()
+    
+    lazy var locationManager: CLLocationManager = {
+        let manager = CLLocationManager()
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyBest
+        manager.requestWhenInUseAuthorization()
+        manager.startMonitoringSignificantLocationChanges()
+        return manager
+    }()
+    var currentLocation: CLLocation!
 
     // MARK: ViewController Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        currentWeather.downloadWeatherDetails { (weather) in
-            if let weather = weather as? CurrentWeather {
-                print("Got current weather data callback!")
-                self.currentWeather = weather // set self to callback data
-                self.downloadForecastData(completed: { _ in
-                    self.updateUI()
-                    self.tableView.reloadData()
-                })
-            } else {
-                print("Can't get current weather data!")
-            }
-        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        locationAuthStatus()
     }
     
     // MARK: Functions
     
     func downloadForecastData(completed: @escaping Completed) {
-        var forecastURL = OpenWeather.instance
-        forecastURL.urlType = .Forecast
+        var weatherForecast = OpenWeather.instance
+        weatherForecast.urlType = .Forecast
         
-        Alamofire.request(forecastURL.url).responseJSON { (response) in
+        if let latitude = Location.sharedInstance.latitude,
+           let longitude = Location.sharedInstance.longitude {
+            weatherForecast.latitude = latitude
+            weatherForecast.longitude = longitude
+        }
+        
+        Alamofire.request(weatherForecast.url).responseJSON { (response) in
             if response.result.isSuccess {
                 
                 // Parse data from OpenWeatherMap forecast data
@@ -81,6 +96,31 @@ class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewD
         currentWeatherImage.image = UIImage(named: currentWeather.weatherType)
         currentWeatherTypeLabel.text = currentWeather.weatherType
     }
+    
+    func locationAuthStatus() {
+        if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
+            currentLocation = locationManager.location
+            Location.sharedInstance.latitude = currentLocation.coordinate.latitude
+            Location.sharedInstance.longitude = currentLocation.coordinate.longitude
+            
+            currentWeather.downloadWeatherDetails { (weather) in
+                if let weather = weather as? CurrentWeather {
+                    print("Got current weather data callback!")
+                    self.currentWeather = weather // set self to callback data
+                    self.downloadForecastData(completed: { _ in
+                        self.updateUI()
+                        self.tableView.reloadData()
+                    })
+                } else {
+                    print("Can't get current weather data!")
+                }
+            }
+            
+        } else {
+            locationManager.requestWhenInUseAuthorization()
+            locationAuthStatus()
+        }
+    }
 
     // MARK: UITableViewDataSource
     
@@ -101,7 +141,8 @@ class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewD
         return UITableViewCell()
     }
     
-    // MARK: UITableViewDelegate
+    // MARK: CLLocationManagerDelegate
+    
 
 }
 

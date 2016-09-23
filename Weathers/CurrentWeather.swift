@@ -27,11 +27,18 @@ struct CurrentWeather {
     }
     
     mutating func downloadWeatherDetails(completed: @escaping Completed) {
-        let currentWeatherURL = OpenWeather.instance.url
+        
+        var currentWeather = OpenWeather.instance
+        
+        if let latitude = Location.sharedInstance.latitude,
+           let longitude = Location.sharedInstance.longitude {
+            currentWeather.latitude = latitude
+            currentWeather.longitude = longitude
+        }
         
         var weatherCopy = self // create a copy of self(it's a struct) and send data to callback
 
-        Alamofire.request(currentWeatherURL).responseJSON { (response) in
+        Alamofire.request(currentWeather.url).responseJSON { (response) in
             if response.result.isSuccess {
                 
                 // Parse data from OpenWeatherMap current data
